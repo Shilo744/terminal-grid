@@ -1,0 +1,48 @@
+/* ---------- Toasts, banner, dialog ---------- */
+.toasts { position: fixed; z-index: 80; top: calc(var(--topbar-h) + 12px); inset-inline-start: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); pointer-events: none; }
+.toast {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px; max-width: 380px; padding: 10px 14px 10px 12px;
+  background: var(--surface-3); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-toast);
+  font-size: 13.5px; line-height: 1.5;
+  animation: toast-in 220ms var(--ease);
+}
+.toast-ic { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: var(--radius-round); background: var(--accent-dim); color: var(--accent); }
+.toast.error .toast-ic { background: var(--danger-dim); color: var(--danger); }
+.toast-text { flex: 1; min-width: 0; }
+.toast-action {
+  display: block; margin-top: 8px; padding: 4px 12px; border: 1px solid var(--accent); border-radius: var(--radius-sm);
+  background: var(--accent-dim); color: var(--accent); font: inherit; font-weight: 600; cursor: default; pointer-events: auto;
+  transition: background var(--speed) var(--ease);
+}
+.toast-action:hover { background: rgba(var(--accent-rgb), .26); }
+.toast-action:active { background: rgba(var(--accent-rgb), .36); }
+.toast-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.banner {
+  position: fixed; z-index: 90; bottom: var(--space-4); inset-inline: 0; margin-inline: auto; width: max-content; max-width: calc(100vw - 32px);
+  display: flex; align-items: center; gap: 10px; padding: 10px 16px;
+  background: var(--surface-3); border: 1px solid var(--warn); border-radius: var(--radius-pill); font-size: 13px;
+  box-shadow: var(--shadow-pop);
+}
+.banner[hidden] { display: none; }
+/* ספינר הבאנר (החיבור נותק) בצבע האזהרה; הספינר הכללי (.spin ב-components.css) בצבע ההדגשה */
+.banner .spin { border-color: var(--warn-dim); border-top-color: var(--warn); }
+
+.dlg {
+  width: min(440px, calc(100vw - 32px)); padding: 0;
+  background: var(--surface-2); color: var(--text); border: 1px solid var(--border-strong); border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-modal);
+}
+.dlg::backdrop { background: var(--scrim); }
+.dlg form { padding: 22px; }
+.dlg h2 { margin: 0 0 8px; font-size: 18px; }
+.dlg p { margin: 0 0 20px; color: var(--text-muted); line-height: 1.7; }
+.about-path { display: block; font: 400 12px var(--font-mono); color: var(--text-muted); overflow-wrap: anywhere; direction: ltr; text-align: left; }
+.dlg-actions { display: flex; justify-content: flex-start; gap: var(--space-2); }
+
+.gone { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: var(--bg); text-align: center; padding: 24px; }
+.gone h1 { margin: 0 0 6px; font-size: 22px; }
+.gone p { margin: 0; color: var(--text-muted); }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes toast-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }

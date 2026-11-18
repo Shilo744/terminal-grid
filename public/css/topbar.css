@@ -1,0 +1,61 @@
+/* ---------- Topbar: שורה אחת של 52px. כל הרכיבים נשארים בגודל קבוע; רק הסיכום והשם של המותג יכולים להיעלם (responsive.css) ---------- */
+.topbar {
+  flex: none;
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-inline: var(--space-4);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+.topbar > * { flex: none; }
+.brand { display: flex; align-items: center; gap: var(--space-2); padding-inline-end: var(--space-2); }
+/* סמל המותג הוא לא כפתור: בלי ריבוע מסביב, כדי שלא יידמה לכפתור הסרגל הצדדי שלידו */
+.brand-mark { display: inline-flex; align-items: center; justify-content: center; color: var(--accent); }
+.brand-name { font-weight: 700; font-size: 15px; white-space: nowrap; }
+
+/* תיקייה + "חדש": התיקייה היא מה שנשחק אם אין מקום (שם עם שלוש נקודות), הכפתור "Claude חדש" תמיד נשאר עם התווית */
+.launch { flex: 0 1 auto; min-width: 0; display: flex; align-items: center; gap: var(--space-2); }
+.launch .chip { flex: 0 1 auto; min-width: 72px; }
+
+.summary {
+  flex: 1 1 0; min-width: 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; gap: var(--space-4);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.stat { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.stat b { color: var(--text); font-weight: 600; }
+.stat .dot.busy { background: var(--accent); }
+.stat .dot.wait { background: var(--warn); }
+/* "N ממתינים לך" הוא כפתור: לחיצה מעבירה לטרמינל הממתין הבא (attention.js) */
+.stat-wait {
+  font: inherit; color: var(--warn); background: transparent; border: 0; border-radius: var(--radius-sm); padding: 3px 8px; margin-inline: -4px; cursor: default;
+  transition: background var(--speed) var(--ease);
+}
+.stat-wait b { color: inherit; }
+.stat-wait:hover { background: var(--warn-dim); }
+.stat-wait:active { background: rgba(var(--warn-rgb), .26); }
+.stat-wait:focus-visible { outline: 2px solid var(--warn); outline-offset: 1px; }
+
+.tools { display: flex; align-items: center; gap: var(--space-2); }
+
+/* יישור עברית (T42): תווית קטנה ושני מצבים. הפעיל = מילוי שטוח בצבע ההדגשה עם טקסט ואייקון בצבע הדיו; הלא פעיל ניטרלי */
+.rtlseg { display: inline-flex; align-items: center; gap: var(--space-2); }
+.rtlseg-label { font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+.rtlseg-btns { display: inline-flex; overflow: hidden; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
+.rtlseg button {
+  display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 0; background: var(--surface-2); color: var(--text-muted);
+  font-size: 12.5px; font-weight: 500; transition: background var(--speed) var(--ease), color var(--speed) var(--ease);
+}
+.rtlseg button + button { border-inline-start: 1px solid var(--border-strong); }
+.rtlseg button:hover { background: var(--surface-3); color: var(--text); }
+.rtlseg button[aria-checked="true"] { background: var(--accent-fill); color: var(--accent-ink); font-weight: 600; }
+.rtlseg button[aria-checked="true"]:hover { background: var(--accent-fill-hi); color: var(--accent-ink); }
+.rtlseg button:focus-visible { outline-offset: -2px; }
+
+/* Hebrew alignment lives in Settings only; no duplicate control in the top bar */
+#rtlBtn { display: none !important; }

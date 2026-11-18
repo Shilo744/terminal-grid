@@ -1,0 +1,16 @@
+/* ---------- Bring an open agent in ---------- */
+.pop.wide { width: 420px; }
+.adopt-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); }
+.adopt-head .pop-head { margin: 0; }
+.adopt-head .btn[hidden] { display: none; }
+.adopt-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.adopt-item {
+  display: flex; align-items: center; gap: var(--space-3); padding: 8px 10px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface);
+}
+.adopt-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.adopt-name { display: flex; align-items: center; gap: 6px; font-weight: 500; }
+.adopt-path { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: ltr; text-align: end; font: 400 12px var(--font-mono); color: var(--text-dim); }
+.adopt-state { font-size: 12px; font-weight: 600; padding: 1px 7px; border-radius: var(--radius-pill); background: var(--accent-dim); color: var(--accent); }
+.adopt-state.busy { background: var(--warn-dim); color: var(--warn); }
+.adopt-go { flex: none; height: 30px; padding-inline: 10px; font-size: 13px; }

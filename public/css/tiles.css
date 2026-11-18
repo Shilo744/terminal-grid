@@ -1,0 +1,18 @@
+/* ---------- אריחים: הטרמינלים הקטנים בתצוגה מוגדלת. לא מציירים טרמינל, רק מצב ושתי שורות פלט אחרונות (tile-preview.js) ---------- */
+.tile-body { display: none; }
+
+/* באריח אותה תווית מצב כמו בכותרת, קטנה יותר (ובלי תווית כשפנוי: הנקודה האפורה מספיקה) */
+.pane.tile .pstatus { height: 18px; padding-inline: 6px; font-size: 12px; }
+.pane.tile .pstatus.k-busy { padding-inline: 2px; }
+
+.pane.tile .tile-body {
+  position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 2px;
+  padding: 4px 10px; min-width: 0; pointer-events: none;
+}
+/* שורות הטרמינל מגיעות בסדר חזותי (גם עברית), לכן מציגים אותן תא אחרי תא משמאל לימין כמו בטרמינל עצמו */
+.tile-body .tl {
+  font: 12px/16px var(--font-mono); color: var(--term-text-muted); white-space: pre; overflow: hidden; text-overflow: ellipsis;
+  direction: ltr; unicode-bidi: bidi-override; text-align: left; min-height: 16px;
+}
+.tile-body .tl:last-child { color: var(--term-text); }
+.pane.tile:hover .tile-body .tl { color: var(--term-text); }

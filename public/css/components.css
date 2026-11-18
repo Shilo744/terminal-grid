@@ -1,0 +1,62 @@
+/* ---------- Components: buttons, chips, icon buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  height: 34px; padding-inline: 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background var(--speed) var(--ease), border-color var(--speed) var(--ease), transform var(--speed) var(--ease);
+}
+.btn:hover { background: var(--surface-3); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--accent-fill); border-color: var(--accent-fill); color: var(--accent-ink); font-weight: 600; }
+.btn.primary:hover { background: var(--accent-fill-hi); border-color: var(--accent-fill-hi); }
+.btn.block { width: 100%; justify-content: flex-start; }
+.btn.danger-fill { background: var(--danger); border-color: var(--danger); color: var(--danger-ink); font-weight: 600; }
+.btn.danger-fill:hover { background: var(--danger-hi); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 34px; max-width: 240px; padding-inline: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  transition: background var(--speed) var(--ease), border-color var(--speed) var(--ease), color var(--speed) var(--ease);
+}
+.chip:hover, .chip[aria-expanded="true"] { background: var(--surface-3); border-color: var(--border-strong); color: var(--text); }
+.chip-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface-2); color: var(--text-muted);
+  transition: background var(--speed) var(--ease), color var(--speed) var(--ease), border-color var(--speed) var(--ease);
+}
+.icon-btn:hover { background: var(--surface-3); color: var(--text); border-color: var(--border-strong); }
+.icon-btn.danger:hover { background: var(--danger-dim); color: var(--danger); border-color: rgba(var(--danger-rgb), .4); }
+.icon-btn[hidden] { display: none; }
+/* לחוץ/פתוח: מילוי שטוח (רקע אפור, אייקון בצבע ההדגשה), בלי קו תחתון, הילה או מסגרת נוספת. טבעת המיקוד המלאה נשארת (base.css) */
+.icon-btn[aria-expanded="true"], .icon-btn[aria-pressed="true"] { background: var(--surface-3); color: var(--accent); border-color: var(--surface-3); }
+
+/* ספינר שקט: ממתינים לשרת (מתג בהגדרות, כרטיס "פותח...") */
+.spin { flex: none; display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border-strong); border-top-color: var(--accent); animation: spin .8s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .spin { animation-duration: 2.4s; } }
+
+/* שינוי שם במקום (T56): שדה צף מעל השם, ועיפרון עדין בריחוף (רק בעכבר; שום דבר קבוע על המסך) */
+.rename-input {
+  position: fixed; z-index: 400; box-sizing: border-box; margin: 0; padding: 0; border: 0; border-bottom: 2px solid var(--accent); border-radius: 2px 2px 0 0;
+  background: var(--surface-3); color: var(--text); outline: 0; /* אותו גופן, מקום וגובה כמו השם: רק רקע קל וקו תחתון מסמנים שעורכים (T71) */
+}
+@media (hover: hover) {
+  .pane:not([data-duo]) .pane-head .name:hover::after, .duo-tab .nm:hover::after, .duo-item .nm:hover::after, .db-name:hover::after, .grp-head:hover .grp-name::after {
+    content: ''; display: inline-block; width: 11px; height: 11px; margin-inline-start: 6px; vertical-align: -1px; background: currentColor; opacity: .55;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+}
+
+/* the hover pencil made the tab wider while the pointer was on it: tabs keep a fixed width (rename stays on double click) */
+@media (hover: hover) { .duo-tab .nm:hover::after, .gtab .nm:hover::after { content: none; display: none; } }

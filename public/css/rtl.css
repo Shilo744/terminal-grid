@@ -1,0 +1,2 @@
+/* ---------- RTL layer canvas (public/js/rtl.js) ---------- */
+.tg-rtl { position: absolute; left: 0; top: 0; z-index: 6; pointer-events: none; }

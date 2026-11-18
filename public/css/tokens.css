@@ -1,0 +1,284 @@
+/* Terminal Grid — Dark Tech */
+
+/* Cascadia Mono של Windows Terminal (רישיון OFL). הגרסה המותקנת ב-Windows ישנה ובלי עברית,
+   ולכן האותיות העבריות נפלו על גופן אחר ויצאו מרווחות. הגרסה הזו כוללת עברית ברוחב תא זהה. */
+@font-face {
+  font-family: 'TG Cascadia';
+  src: url('/fonts/CascadiaMono.ttf') format('truetype');
+  font-weight: 200 700;
+  font-style: normal;
+  font-display: block;
+}
+
+/* Heebo (גופן הממשק, רישיון OFL ב-public/fonts/Heebo-OFL-LICENSE.txt): מוגש מהשרת המקומי, בלי בקשה לרשת ובלי המתנה בציור הראשון (GL-2).
+   רק עברית ולטינית, ארבעה משקלים: כ-84KB בסך הכול. font-display: swap מציג מיד גופן מערכת אם הקובץ עוד לא הגיע. */
+@font-face { font-family: 'Heebo'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/heebo-hebrew-400.woff2') format('woff2'); unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; }
+@font-face { font-family: 'Heebo'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/heebo-latin-400.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Heebo'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/heebo-hebrew-500.woff2') format('woff2'); unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; }
+@font-face { font-family: 'Heebo'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/heebo-latin-500.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Heebo'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/heebo-hebrew-600.woff2') format('woff2'); unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; }
+@font-face { font-family: 'Heebo'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/heebo-latin-600.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Heebo'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/heebo-hebrew-700.woff2') format('woff2'); unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; }
+@font-face { font-family: 'Heebo'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/heebo-latin-700.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+/* ---------- מראה (T36, T49): כל צבע בממשק בא מכאן ----------
+   שלושה סגנונות (`data-style` על :root), כל אחד שונה במבנה ולא רק בצבע (המבנה ב-styles.css): "ide" (ברירת המחדל: פחם ניטרלי, שטוח, בהשראת Dark+),
+   "classic" (הכחול-כהה עם טורקיז של V4 הראשון) ו"paper" (נייר: ממשק בהיר וחם סביב טרמינלים כהים), ושבעה צבעי הדגשה (`data-accent`): "default" (ההדגשה של הסגנון עצמו) ועוד ששה.
+   הסגנון קובע משטחים, קווים, טקסט, צבעים סמנטיים, צללים, פינות וצבעי טרמינל; ההדגשה קובעת את משפחת ה-accent בלבד (ב"paper" יש לכל הדגשה גרסה כהה יותר שעוברת AA על משטחים בהירים).
+   בשלושת הסגנונות הטרמינלים הם משטחים כהים: --term-text* הם הטקסט שמונח עליהם (ב"paper" בהיר, בשאר הוא הטקסט הרגיל).
+   הסלקטור `.st-prev[data-style]` נותן לתצוגה המקדימה בהגדרות את אותם משתנים בדיוק, בלי לשכפל כללים.
+   כל סגנון מגדיר את כל משתני הסגנון, כדי שתצוגה מקדימה לא תירש משהו מהסגנון הפעיל.
+   --accent: צבע קריא על המשטחים (טקסט, אייקון, טבעת מיקוד, התקדמות). --accent-fill: מילוי של כפתור ראשי, ו---accent-ink הטקסט שעליו.
+   טבלת הניגודיות (AA) נבדקת ב-tests/unit/contrast.js ומתועדת ב-docs/design-principles.md. */
+
+:root {
+  color-scheme: dark;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+
+  --font-ui: 'Heebo', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Cascadia Mono', 'Cascadia Code', Consolas, 'Courier New', monospace;
+  --ease: cubic-bezier(.2, .7, .3, 1);
+  --speed: 160ms;
+
+  --topbar-h: 52px;
+  --gap: 10px;
+
+  --ink-dark: #06130f; /* טקסט כהה על מילוי בהיר (עיגולי ההדגשה, כפתור ראשי בצבע הדגשה בהיר) */
+
+  /* גוונים שנגזרים מההדגשה: מחושבים על :root, ולכן עוקבים אחרי ההדגשה שנבחרה (גם בתצוגה המקדימה שיורשת אותם) */
+  --accent-dim: rgba(var(--accent-rgb), .1);
+  --accent-halo: rgba(var(--accent-rgb), .15);
+  --accent-ring: rgba(var(--accent-rgb), .22);
+  --accent-line-soft: rgba(var(--accent-rgb), .4);
+  --accent-line: rgba(var(--accent-rgb), .55);
+  --accent-glow: rgba(var(--accent-rgb), .25);
+  --warn-dim: rgba(var(--warn-rgb), .15);
+  --danger-dim: rgba(var(--danger-rgb), .14);
+}
+
+/* ההדגשה של הסגנון (--sty-*) נבחרת כברירת מחדל; בחירה מפורשת בהגדרות דורסת אותה בבלוקים שבהמשך */
+:root, .st-prev {
+  --accent: var(--sty-accent);
+  --accent-rgb: var(--sty-accent-rgb);
+  --accent-fill: var(--sty-fill);
+  --accent-fill-hi: var(--sty-fill-hi);
+  --accent-ink: var(--sty-ink);
+  --sw-default: var(--sty-accent);
+  --sw-blue: #66b0ff; --sw-teal: #46e3c6; --sw-violet: #b8a0ff; --sw-green: #62d98a; --sw-amber: #ff9f45; --sw-rose: #ff85ad; /* גם עיגולי הבחירה בהגדרות */
+}
+
+/* IDE (ברירת מחדל): פחם ניטרלי בהשראת VS Code Dark+, כחול, פינות של 4px, שטוח, בלי צללים על לוחות */
+:root, .st-prev[data-style="ide"] {
+  --bg: #1e1e1e;
+  --surface: #252526;
+  --surface-2: #2d2d30;
+  --surface-3: #37373d;
+  --border: #3c3c3c;
+  --border-strong: #4b4b4b;
+  --border-hover: #5a5a5a;
+  --text: #cccccc;
+  --text-muted: #aaaaaa;
+  --text-dim: #979797;
+
+  --term-bg: #1e1e1e;
+  --term-fg: #cccccc;
+  --term-cursor: #aeafad;
+  --term-select: #264f78;
+
+  --sty-accent: #58aaff;
+  --sty-accent-rgb: 88, 170, 255;
+  --sty-fill: #0e639c;
+  --sty-fill-hi: #1177bb;
+  --sty-ink: #ffffff;
+
+  --warn: #cca700;
+  --warn-rgb: 204, 167, 0;
+  --warn-ink: #231a05;
+  --danger: #ff6464;
+  --danger-rgb: 255, 100, 100;
+  --danger-hi: #ff8080;
+  --danger-ink: #230509;
+
+  --claude: #e8895f;
+  --claude-rgb: 232, 137, 95;
+  --shell: #75beff;
+  --shell-rgb: 117, 190, 255;
+  --role-tint: .16;
+
+  --radius: 4px;
+  --radius-sm: 3px;
+  --radius-lg: 4px; --radius-xl: 4px; --radius-ctl: 2px; --radius-md: 3px;
+  --radius-pill: 2px; --radius-chip: 2px; --radius-round: 3px; --radius-tab: 4px; --radius-bubble: 4px; /* T73: ב-IDE אין עיגולים: כדורי לחיצה, תגיות ואווטארים כמעט מרובעים (רק נקודות מצב ומתג הדלקה נשארים עגולים) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .35);
+  --shadow-pop: 0 2px 8px rgba(0, 0, 0, .36);
+  --shadow-toast: 0 2px 8px rgba(0, 0, 0, .36), 0 0 0 1px var(--border);
+  --shadow-modal: 0 0 12px rgba(0, 0, 0, .5);
+  --scrim: rgba(0, 0, 0, .5);
+  --veil: rgba(30, 30, 30, .82);
+  --chip-bg: rgba(255, 255, 255, .08);
+  --scroll-thumb: rgba(121, 121, 121, .4);
+  --scroll-thumb-hover: rgba(121, 121, 121, .7);
+  --term-text: var(--text);
+  --term-text-muted: var(--text-muted);
+  --term-text-dim: var(--text-dim);
+  --pane-head-bg: var(--surface);
+  --term-scroll-thumb: var(--scroll-thumb);
+  --term-scroll-thumb-hover: var(--scroll-thumb-hover);
+  --shadow-card: none;
+  --shadow-card-focus: none;
+  --sw-ink: var(--ink-dark);
+}
+
+/* קלאסי: כחול כהה עם טורקיז, כמו ב-V4 הראשון (אחרי הליטוש של T34) */
+:root[data-style="classic"], .st-prev[data-style="classic"] {
+  --bg: #0a0d13;
+  --surface: #10141c;
+  --surface-2: #161b26;
+  --surface-3: #1e2433;
+  --border: rgba(255, 255, 255, .08);
+  --border-strong: rgba(255, 255, 255, .16);
+  --border-hover: rgba(255, 255, 255, .3);
+  --text: rgba(255, 255, 255, .92);
+  --text-muted: #8f98ad;
+  --text-dim: #848da6; /* 4.7:1 על surface-3 ו-5.9:1 על bg */
+
+  --term-bg: #0c0c0c;
+  --term-fg: #cccccc;
+  --term-cursor: #ffffff;
+  --term-select: rgba(255, 255, 255, .28);
+
+  --sty-accent: #46e3c6;
+  --sty-accent-rgb: 70, 227, 198;
+  --sty-fill: #46e3c6;
+  --sty-fill-hi: color-mix(in srgb, #46e3c6 78%, white);
+  --sty-ink: #06130f;
+
+  --warn: #f4b740;
+  --warn-rgb: 244, 183, 64;
+  --warn-ink: #231a05;
+  --danger: #ff6b7a;
+  --danger-rgb: 255, 107, 122;
+  --danger-hi: #ff8a96;
+  --danger-ink: #230509;
+
+  --claude: #e8895f;
+  --claude-rgb: 232, 137, 95;
+  --shell: #6db3ff;
+  --shell-rgb: 109, 179, 255;
+  --role-tint: .16;
+
+  --radius: 10px;
+  --radius-sm: 7px;
+  --radius-lg: 12px; --radius-xl: 14px; --radius-ctl: 6px; --radius-md: 8px;
+  --radius-pill: 999px; --radius-chip: 10px; --radius-round: 50%; --radius-tab: 8px; --radius-bubble: 12px;
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, .5);
+  --shadow-pop: 0 1px 2px rgba(0, 0, 0, .3), 0 16px 40px rgba(0, 0, 0, .55);
+  --shadow-toast: 0 10px 28px rgba(0, 0, 0, .45), 0 0 0 1px var(--border);
+  --shadow-modal: 0 24px 60px rgba(0, 0, 0, .6);
+  --scrim: rgba(5, 7, 11, .65);
+  --veil: rgba(8, 10, 15, .72);
+  --chip-bg: rgba(255, 255, 255, .07);
+  --scroll-thumb: rgba(255, 255, 255, .2);
+  --scroll-thumb-hover: rgba(255, 255, 255, .36);
+  --term-text: var(--text);
+  --term-text-muted: var(--text-muted);
+  --term-text-dim: var(--text-dim);
+  --pane-head-bg: var(--surface);
+  --term-scroll-thumb: var(--scroll-thumb);
+  --term-scroll-thumb-hover: var(--scroll-thumb-hover);
+  --shadow-card: none;
+  --shadow-card-focus: none;
+  --sw-ink: var(--ink-dark);
+}
+
+/* נייר (T49): ממשק בהיר וחם סביב טרמינלים כהים, כמו נייר על שולחן. הטרמינלים נשארים כהים (גם 16 צבעי ה-ANSI), פינות של 12px, צללים רכים במקום קווים.
+   ההדגשה של הסגנון היא טרקוטה של Claude; לכל אחת משש ההדגשות יש כאן גרסה כהה יותר, כדי שתעבור AA על משטחים בהירים (הלבן על המילוי: מעל 5.8:1) */
+:root[data-style="paper"], .st-prev[data-style="paper"] {
+  color-scheme: light;
+  --bg: #ece9e2;
+  --surface: #f6f4ef;
+  --surface-2: #ffffff;
+  --surface-3: #e9e6de;
+  --border: rgba(0, 0, 0, .09);
+  --border-strong: rgba(0, 0, 0, .18);
+  --border-hover: rgba(0, 0, 0, .3);
+  --text: #1f2328;
+  --text-muted: #565d66;
+  --text-dim: #5c6570;
+
+  --term-bg: #1e1e1e;
+  --term-fg: #cccccc;
+  --term-cursor: #aeafad;
+  --term-select: #264f78;
+  --term-text: #cccccc;
+  --term-text-muted: #a8a8a8;
+  --term-text-dim: #929292;
+
+  --sty-accent: #a74220;
+  --sty-accent-rgb: 167, 66, 32;
+  --sty-fill: #a74220;
+  --sty-fill-hi: #8c3617;
+  --sty-ink: #ffffff;
+
+  --warn: #a85f00;
+  --warn-rgb: 168, 95, 0;
+  --warn-ink: #ffffff;
+  --danger: #c62828;
+  --danger-rgb: 198, 40, 40;
+  --danger-hi: #a81f1f;
+  --danger-ink: #ffffff;
+
+  --claude: #a74220;
+  --claude-rgb: 167, 66, 32;
+  --shell: #0b5cad;
+  --shell-rgb: 11, 92, 173;
+  --role-tint: .1;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 12px; --radius-xl: 14px; --radius-ctl: 6px; --radius-md: 8px;
+  --radius-pill: 999px; --radius-chip: 10px; --radius-round: 50%; --radius-tab: 8px; --radius-bubble: 12px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .06);
+  --shadow-pop: 0 1px 2px rgba(0, 0, 0, .06), 0 8px 24px rgba(0, 0, 0, .12);
+  --shadow-toast: 0 1px 2px rgba(0, 0, 0, .08), 0 10px 28px rgba(0, 0, 0, .16), 0 0 0 1px var(--border);
+  --shadow-modal: 0 1px 2px rgba(0, 0, 0, .08), 0 24px 60px rgba(0, 0, 0, .22);
+  --scrim: rgba(31, 35, 40, .38);
+  --veil: rgba(30, 30, 30, .84);
+  --chip-bg: rgba(0, 0, 0, .06);
+  --scroll-thumb: rgba(0, 0, 0, .24);
+  --scroll-thumb-hover: rgba(0, 0, 0, .42);
+  --pane-head-bg: #f0ede6;
+  --term-scroll-thumb: rgba(255, 255, 255, .22);
+  --term-scroll-thumb-hover: rgba(255, 255, 255, .4);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, .06), 0 8px 24px rgba(0, 0, 0, .08);
+  --shadow-card-focus: 0 2px 4px rgba(0, 0, 0, .1), 0 14px 36px rgba(0, 0, 0, .2);
+  --sw-ink: #ffffff;
+  --sw-blue: #1a5fb4; --sw-teal: #0b6e66; --sw-violet: #6b3fbf; --sw-green: #18692f; --sw-amber: #8c4f00; --sw-rose: #b0214e;
+}
+
+/* צבע הדגשה מפורש: דורס את ברירת המחדל של הסגנון (גם בתצוגות המקדימות, ולכן הסלקטור השני). מופיע אחרי הסגנונות בכוונה (אותה ספציפיות) */
+:root[data-accent="blue"], :root[data-accent="blue"] .st-prev { --accent: var(--sw-blue); --accent-rgb: 102, 176, 255; --accent-fill: var(--sw-blue); --accent-fill-hi: color-mix(in srgb, var(--sw-blue) 78%, white); --accent-ink: var(--ink-dark); }
+:root[data-accent="teal"], :root[data-accent="teal"] .st-prev { --accent: var(--sw-teal); --accent-rgb: 70, 227, 198; --accent-fill: var(--sw-teal); --accent-fill-hi: color-mix(in srgb, var(--sw-teal) 78%, white); --accent-ink: var(--ink-dark); }
+:root[data-accent="violet"], :root[data-accent="violet"] .st-prev { --accent: var(--sw-violet); --accent-rgb: 184, 160, 255; --accent-fill: var(--sw-violet); --accent-fill-hi: color-mix(in srgb, var(--sw-violet) 78%, white); --accent-ink: var(--ink-dark); }
+:root[data-accent="green"], :root[data-accent="green"] .st-prev { --accent: var(--sw-green); --accent-rgb: 98, 217, 138; --accent-fill: var(--sw-green); --accent-fill-hi: color-mix(in srgb, var(--sw-green) 78%, white); --accent-ink: var(--ink-dark); }
+:root[data-accent="amber"], :root[data-accent="amber"] .st-prev { --accent: var(--sw-amber); --accent-rgb: 255, 159, 69; --accent-fill: var(--sw-amber); --accent-fill-hi: color-mix(in srgb, var(--sw-amber) 78%, white); --accent-ink: var(--ink-dark); }
+:root[data-accent="rose"], :root[data-accent="rose"] .st-prev { --accent: var(--sw-rose); --accent-rgb: 255, 133, 173; --accent-fill: var(--sw-rose); --accent-fill-hi: color-mix(in srgb, var(--sw-rose) 78%, white); --accent-ink: var(--ink-dark); }
+
+/* נייר + הדגשה מפורשת: הגרסאות הכהות (--sw-* של נייר) במקום הבהירות של הסגנונות הכהים; ספציפיות גבוהה יותר מהבלוקים שמעל */
+:root[data-style="paper"][data-accent="blue"], :root[data-accent="blue"] .st-prev[data-style="paper"] { --accent: var(--sw-blue); --accent-rgb: 26, 95, 180; --accent-fill: var(--sw-blue); --accent-fill-hi: #154d93; --accent-ink: #ffffff; }
+:root[data-style="paper"][data-accent="teal"], :root[data-accent="teal"] .st-prev[data-style="paper"] { --accent: var(--sw-teal); --accent-rgb: 11, 110, 102; --accent-fill: var(--sw-teal); --accent-fill-hi: #08574f; --accent-ink: #ffffff; }
+:root[data-style="paper"][data-accent="violet"], :root[data-accent="violet"] .st-prev[data-style="paper"] { --accent: var(--sw-violet); --accent-rgb: 107, 63, 191; --accent-fill: var(--sw-violet); --accent-fill-hi: #57329c; --accent-ink: #ffffff; }
+:root[data-style="paper"][data-accent="green"], :root[data-accent="green"] .st-prev[data-style="paper"] { --accent: var(--sw-green); --accent-rgb: 24, 105, 47; --accent-fill: var(--sw-green); --accent-fill-hi: #125526; --accent-ink: #ffffff; }
+:root[data-style="paper"][data-accent="amber"], :root[data-accent="amber"] .st-prev[data-style="paper"] { --accent: var(--sw-amber); --accent-rgb: 140, 79, 0; --accent-fill: var(--sw-amber); --accent-fill-hi: #733f00; --accent-ink: #ffffff; }
+:root[data-style="paper"][data-accent="rose"], :root[data-accent="rose"] .st-prev[data-style="paper"] { --accent: var(--sw-rose); --accent-rgb: 176, 33, 78; --accent-fill: var(--sw-rose); --accent-fill-hi: #8f1a3f; --accent-ink: #ffffff; }
+
+/* מעבר צבע קצר בזמן החלפת מראה (appearance.js מוסיף את המחלקה ל-280ms בלבד) */
+.theme-anim, .theme-anim *, .theme-anim *::before, .theme-anim *::after {
+  transition: background-color .22s ease, border-color .22s ease, color .22s ease, box-shadow .22s ease, fill .22s ease, stroke .22s ease !important;
+}
+@media (prefers-reduced-motion: reduce) { .theme-anim, .theme-anim * { transition: none !important; } }

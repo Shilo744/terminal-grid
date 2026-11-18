@@ -1,0 +1,9 @@
+/* ---------- Layout: work area (side menu + terminals) ---------- */
+.work { flex: 1; min-height: 0; display: flex; }
+#stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: var(--gap);
+}
+#stage { min-width: 0; }

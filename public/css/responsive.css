@@ -1,0 +1,23 @@
+/* הסרגל העליון: בלי הסתרת תוויות של כפתורים. רק שם המותג והסיכום מצטמצמים כשצר (בין 900 ל-2560 הכול נכנס בשורה אחת) */
+@media (max-width: 1100px) {
+  .brand-name { display: none; }
+  #side { width: 290px; }
+  body.side-open .toasts { inset-inline-start: calc(290px + var(--gap) + var(--space-4)); }
+}
+@media (max-width: 1000px) {
+  .summary { display: none; }
+}
+/* בחלון צר התווית "יישור עברית" נשארת רק בתיאור הכלי (title), והקטעים נשארים עם הטקסט שלהם */
+@media (max-width: 1250px) {
+  .rtlseg-label { display: none; }
+}
+/* חלון ההגדרות: בחלון צר הוא תופס את כל הרוחב, והשורות נערמות */
+@media (max-width: 600px) {
+  .settings-dlg { border-radius: 0; border-inline-width: 0; }
+  .st-content { padding-inline: 16px; }
+  .st-row { grid-template-columns: minmax(0, 1fr); }
+  .slider, .sel { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

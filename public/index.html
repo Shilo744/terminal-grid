@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Terminal Grid&#8204;</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0d13'/%3E%3Cpath d='M9 11l6 5-6 5' fill='none' stroke='%2346e3c6' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M18 22h6' stroke='%2346e3c6' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+  <!-- רקע מיידי לפני שהקבצים נטענים (אחרת הדף נפתח לבן לרגע): אותם צבעים כמו --bg של כל סגנון ב-tokens.css -->
+  <style>html{background:#1e1e1e}html[data-style="classic"]{background:#0a0d13}html[data-style="paper"]{background:#ece9e2}</style>
+  <!-- גופן Heebo מוגש מ-/fonts (tokens.css): בלי בקשה לרשת חיצונית -->
+  <!-- מראה לפני הציור הראשון: הערכים השמורים במטמון של ההגדרות (settings.js), כדי שלא יהיה הבהוב של מראה אחר. appearance.js מאמת ומתקן אחר כך -->
+  <script>try { var r = document.documentElement, s = JSON.parse(localStorage.getItem("tg.appearanceStyle")), a = JSON.parse(localStorage.getItem("tg.appearanceAccent")); if (typeof s === "string") r.setAttribute("data-style", s); if (typeof a === "string") r.setAttribute("data-accent", a); } catch (e) {}</script>
+  <link rel="stylesheet" href="/vendor/xterm.css">
+  <!-- הסדר חשוב: זה סדר הכללים בקסקדה (מי שמאוחר גובר בשווה-ספציפיות). ראו docs/client-architecture.md -->
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/panes.css">
+  <link rel="stylesheet" href="/css/tiles.css">
+  <link rel="stylesheet" href="/css/empty-state.css">
+  <link rel="stylesheet" href="/css/popovers.css">
+  <link rel="stylesheet" href="/css/adopt.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/rtl.css">
+  <link rel="stylesheet" href="/css/duo.css">
+  <link rel="stylesheet" href="/css/overlays.css">
+  <link rel="stylesheet" href="/css/settings.css">
+  <link rel="stylesheet" href="/css/menu.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <button id="sideBtn" class="icon-btn" type="button" aria-expanded="false" aria-controls="side" title="שיחות" aria-label="תפריט שיחות">
+    <span data-icon="panel" data-size="17"></span>
+  </button>
+  <div class="brand">
+    <span class="brand-mark" data-icon="terminal" data-size="18"></span>
+    <span class="brand-name" dir="ltr">Terminal Grid</span>
+  </div>
+
+  <div class="launch">
+    <button id="folderBtn" class="chip" type="button" aria-haspopup="dialog" aria-expanded="false" title="תיקיית העבודה של הטרמינל הבא">
+      <span data-icon="folder" data-size="15"></span>
+      <bdi id="folderLabel" class="chip-label">…</bdi>
+      <span data-icon="chevron" data-size="14"></span>
+    </button>
+    <div class="split" role="group" aria-label="טרמינל חדש">
+      <button id="addClaude" class="btn primary split-main" type="button">
+        <span data-icon="asterisk" data-size="16"></span>
+        <span>Claude חדש</span>
+      </button>
+      <button id="newMenuBtn" class="btn primary split-arrow" type="button" aria-haspopup="menu" aria-expanded="false" title="עוד אפשרויות לפתיחה" aria-label="אפשרויות פתיחה נוספות">
+        <span data-icon="chevron" data-size="14"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="summary" id="summary" aria-live="polite"></div>
+
+  <div class="tools">
+    <button id="gridBtn" class="icon-btn" type="button" title="חזרה לתצוגת רשת" aria-label="חזרה לתצוגת רשת" hidden>
+      <span data-icon="grid" data-size="17"></span>
+    </button>
+    <!-- יישור עברית (T42): בקרה מסומנת עם שני מצבים ברורים; המצב הפעיל הוא קטע מלא בצבע ההדגשה -->
+    <div id="rtlBtn" class="rtlseg" role="radiogroup" aria-label="יישור עברית" title="יישור עברית לימין בטרמינלים של Claude. אזור ההקלדה לא משתנה.">
+      <span class="rtlseg-label" aria-hidden="true">יישור עברית</span>
+      <span class="rtlseg-btns">
+        <button id="rtlOn" type="button" role="radio" aria-checked="true" title="עברית מיושרת לימין"><span data-icon="alignRight" data-size="15"></span><span>ימין</span></button>
+        <button id="rtlOff" type="button" role="radio" aria-checked="false" title="עברית מיושרת לשמאל (השכבה כבויה)"><span data-icon="alignLeft" data-size="15"></span><span>שמאל</span></button>
+      </span>
+    </div>
+    <button id="settingsBtn" class="icon-btn" type="button" aria-haspopup="dialog" title="הגדרות (Ctrl+,)" aria-label="הגדרות">
+      <span data-icon="settings" data-size="17"></span>
+    </button>
+    <button id="moreBtn" class="icon-btn" type="button" aria-haspopup="menu" aria-expanded="false" title="עוד" aria-label="עוד פעולות">
+      <span data-icon="more" data-size="17"></span>
+    </button>
+  </div>
+</header>
+
+<div id="duoTabs" class="duo-tabs" role="tablist" aria-label="לשוניות"></div>
+
+<div class="work">
+<aside id="side" aria-label="שיחות" hidden>
+  <div class="side-head">
+    <span class="side-title">שיחות</span>
+    <button id="sideNew" class="btn primary side-new" type="button" title="שיחה חדשה בתיקייה לבחירה">
+      <span data-icon="plus" data-size="15"></span>
+      <span>חדש</span>
+    </button>
+  </div>
+  <section class="side-duos" aria-label="זוגות סוכנים">
+    <div class="side-sec-head">
+      <span>זוגות סוכנים</span>
+      <button id="sideNewDuo" class="side-mini" type="button" title="זוג סוכנים חדש" aria-label="זוג סוכנים חדש"><span data-icon="plus" data-size="14"></span></button>
+    </div>
+    <div id="duoList" class="duo-list"></div>
+  </section>
+  <label class="side-search">
+    <span data-icon="search" data-size="15"></span>
+    <input id="sideQ" type="search" placeholder="חיפוש" autocomplete="off" spellcheck="false">
+  </label>
+  <div id="sideList" class="side-list" role="tree"></div>
+</aside>
+
+<main id="stage" aria-label="טרמינלים">
+  <section id="empty" class="empty" hidden>
+    <div class="empty-card start">
+      <h1>התחלה</h1>
+      <p>פותחים שיחת Claude חדשה בתיקייה, זוג סוכנים, או ממשיכים מאיפה שעצרת.</p>
+      <div class="start-main">
+        <button id="startClaude" class="btn primary start-primary" type="button" data-launch="claude"><span data-icon="asterisk" data-size="16"></span><span id="startClaudeLabel">Claude חדש</span></button>
+        <button id="startFolder" class="start-link" type="button" title="בחירת תיקיית העבודה של הטרמינל הבא">החלפת תיקייה</button>
+        <button class="btn" type="button" data-launch="powershell"><span data-icon="terminal" data-size="16"></span><span>PowerShell</span></button>
+        <button id="startDuo" class="btn" type="button" title="ארכיטקט ועובד שעובדים על פרויקט דרך שני קבצים משותפים"><span data-icon="duo" data-size="16"></span><span>זוג סוכנים</span></button>
+      </div>
+      <p id="startMissing" class="start-missing" role="alert" hidden>הפקודה claude לא נמצאה. התקינו את Claude Code ופתחו מחדש. <button id="startRecheck" class="start-link" type="button">בדיקה מחדש</button></p>
+      <section id="startResume" class="start-list" aria-labelledby="startResumeTitle" hidden>
+        <h2 id="startResumeTitle">המשך מאיפה שעצרת</h2>
+        <ul id="startResumeList"></ul>
+      </section>
+      <section id="startFolders" class="start-list" aria-labelledby="startFoldersTitle" hidden>
+        <h2 id="startFoldersTitle">תיקיות אחרונות</h2>
+        <ul id="startFoldersList"></ul>
+      </section>
+      <p class="hint"><span class="hk"><kbd>Alt</kbd> + <kbd dir="ltr">1…9</kbd> מעבר בין טרמינלים</span> · <span class="hk"><kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd dir="ltr">←/→</kbd> מעבר בין לשוניות</span> · <span class="hk"><kbd>Alt</kbd> + <kbd dir="ltr">W</kbd> מי שממתין לך</span> · <span class="hk"><kbd>Ctrl</kbd> + <kbd dir="ltr">,</kbd> הגדרות</span><br><span class="hk"><kbd>Shift</kbd> + <kbd>Enter</kbd> שורה חדשה בתיבת ההקלדה של Claude</span> · <span class="hk">קליק ימני: תפריט, בלי הדבקה</span> · <span class="hk"><kbd>Ctrl</kbd> + <kbd dir="ltr">A</kbd> בוחר את מה שהקלדת ב-Claude</span> · <span class="hk"><kbd>Ctrl</kbd> + <kbd dir="ltr">V</kbd> או גרירה: הדבקה</span> · <span class="hk"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd dir="ltr">V</kbd>: טקסט ארוך ב-Claude (שנשמר כקובץ) כמו שהוא</span></p>
+    </div>
+  </section>
+</main>
+
+<main id="duoView" class="duo-view" aria-label="זוגות סוכנים" hidden>
+  <div id="duoCols" class="duo-cols">
+    <section class="duo-col" data-role="architect" aria-label="הארכיטקט">
+      <div class="duo-slot"></div>
+    </section>
+    <section id="duoBoard" class="duo-board" aria-label="המסמך המשותף"></section>
+    <section class="duo-col" data-role="worker" aria-label="העובד">
+      <div class="duo-slot"></div>
+    </section>
+  </div>
+  <section id="duoCreating" class="duo-empty" role="status" hidden>
+    <div class="empty-card">
+      <span class="spin lg" aria-hidden="true"></span>
+      <h1>פותח את זוג הסוכנים…</h1>
+      <p>מפעיל ארכיטקט ועובד בתיקייה <bdi class="cr-project"></bdi>. זה לוקח כמה שניות.</p>
+    </div>
+  </section>
+  <section id="duoEmpty" class="duo-empty" hidden>
+    <div class="empty-card">
+      <div class="empty-icon" data-icon="duo" data-size="28"></div>
+      <h1>זוג סוכנים</h1>
+      <p>ארכיטקט שמתכנן ובודק, ועובד שכותב קוד. הם מתאמים ביניהם דרך קובץ שיחה וקובץ משימות בתיקיית הפרויקט, כל אחד מתעורר כשיש לו מה לעשות, ואפשר להשאיר אותם לעבוד כל הלילה.</p>
+      <div class="empty-actions">
+        <button id="duoEmptyCreate" class="btn primary" type="button"><span data-icon="duo" data-size="16"></span><span>יצירת זוג חדש</span></button>
+      </div>
+    </div>
+  </section>
+</main>
+</div>
+
+<!-- שורת מצב (T39): רק בסגנון IDE. הסיכום (#summary) עובר לכאן מהסרגל העליון (status.js), ובסגנונות האחרים השורה מוסתרת והסיכום נשאר למעלה -->
+<footer id="statusBar" class="statusbar" aria-label="שורת מצב" hidden>
+  <div id="sbStart" class="sb-start"></div>
+  <div class="sb-end">
+    <span id="sbConn" class="sb-item sb-conn" data-state="on" title="החיבור לשרת"><i class="sb-dot" aria-hidden="true"></i><span class="sb-conn-text">מחובר</span></span>
+    <span id="sbPort" class="sb-item" dir="ltr" hidden></span>
+    <span id="sbVersion" class="sb-item" dir="ltr" hidden></span>
+  </div>
+</footer>
+
+<div id="duoHold" class="duo-hold" aria-hidden="true"></div>
+
+<dialog id="duoDlg" class="dlg duo-dlg">
+  <form method="dialog">
+    <h2>זוג סוכנים חדש</h2>
+    <p>ארכיטקט מתכנן ובודק, עובד כותב קוד. הם מתאמים דרך שני קבצים בתיקיית <bdi dir="ltr">.duo</bdi> בפרויקט.</p>
+    <div class="field">
+      <span>תיקיית הפרויקט</span>
+      <div class="duo-folder">
+        <span class="duo-folder-info"><bdi id="duoFolderLabel" class="duo-folder-name"></bdi><bdi id="duoFolderPath" class="duo-folder-path" dir="ltr"></bdi></span>
+        <button type="button" id="duoPick" class="btn">בחירה…</button>
+      </div>
+    </div>
+    <label class="field">
+      <span>מטרה ראשונית (אפשר להשאיר ריק ולכתוב בשיחה אחר כך)</span>
+      <textarea id="duoGoal" rows="4" dir="auto" placeholder="למשל: לבנות אתר מנוי לחדר כושר לפי המסמך שבתיקייה"></textarea>
+    </label>
+    <label class="field">
+      <span>הרשאות של הסוכנים</span>
+      <select id="duoMode">
+        <option value="auto">אוטומטי (מומלץ)</option>
+        <option value="acceptEdits">אישור עריכות בלבד</option>
+        <option value="bypassPermissions">בלי בדיקות (מסוכן)</option>
+      </select>
+      <small id="duoModeHint" class="field-hint"></small>
+    </label>
+    <div class="dlg-actions">
+      <button class="btn primary" value="ok">התחלה</button>
+      <button class="btn" value="cancel" formnovalidate>ביטול</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="folderPop" class="pop" role="dialog" aria-label="בחירת תיקיית עבודה" hidden>
+  <div class="pop-head">תיקיית עבודה לטרמינל הבא</div>
+  <button id="browseBtn" class="btn block" type="button">
+    <span data-icon="folder" data-size="16"></span>
+    <span id="browseLabel">בחירת תיקייה מהמחשב…</span>
+  </button>
+  <label class="field">
+    <span>או הדביקו נתיב</span>
+    <input id="pathInput" type="text" dir="ltr" spellcheck="false" autocomplete="off" placeholder="C:\Users\...">
+  </label>
+  <div class="pop-sub" id="recentsHead">אחרונות</div>
+  <ul id="recentList" class="recent-list"></ul>
+</div>
+
+<div id="adoptPop" class="pop wide" role="dialog" aria-label="ייבוא סוכנים" hidden>
+  <div class="adopt-head">
+    <span class="pop-head">סוכנים פתוחים</span>
+    <button id="adoptAll" class="btn adopt-go" type="button" hidden>ייבא הכל</button>
+  </div>
+  <ul id="adoptList" class="adopt-list"></ul>
+</div>
+
+<dialog id="aboutDlg" class="dlg" aria-labelledby="aboutTitle">
+  <form method="dialog">
+    <h2 id="aboutTitle">Terminal Grid</h2>
+    <p id="aboutLine"></p>
+    <div class="field"><span>קובץ ההגדרות</span><bdi id="aboutSettings" class="about-path" dir="ltr"></bdi></div>
+    <div class="field"><span>מצב הטרמינלים</span><bdi id="aboutState" class="about-path" dir="ltr"></bdi></div>
+    <div class="dlg-actions"><button class="btn primary" value="close">סגירה</button></div>
+  </form>
+</dialog>
+
+<dialog id="settingsDlg" class="settings-dlg" aria-labelledby="settingsTitle">
+  <div class="st-head">
+    <h2 id="settingsTitle">הגדרות</h2>
+    <button id="settingsClose" class="icon-btn" type="button" title="סגירה (Esc)" aria-label="סגירת ההגדרות"><span data-icon="x" data-size="16"></span></button>
+  </div>
+  <div id="settingsContent" class="st-content"></div>
+</dialog>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<div id="offline" class="banner" role="status" hidden>
+  <span class="spin" aria-hidden="true"></span>
+  <span>החיבור לשרת אבד. מתחבר מחדש…</span>
+</div>
+
+<script src="/vendor/xterm.js"></script>
+<script src="/vendor/addon-fit.js"></script>
+<script src="/vendor/addon-web-links.js"></script>
+<script src="/vendor/addon-unicode11.js"></script>
+<script src="/vendor/addon-webgl.js"></script>
+<script type="module" src="/js/main.js"></script>
+</body>
+</html>

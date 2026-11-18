@@ -1,0 +1,330 @@
+/* ---------- זוג סוכנים: מסך שלוש העמודות, הלוח האמצעי, התפריט והחלון ---------- */
+
+.duo-tab.pending { display: inline-flex; align-items: center; gap: 8px; color: var(--text-muted); cursor: default; }
+
+/* מסך הזוגות: לשוניות למעלה, ומתחתן ימין = ארכיטקט, אמצע = מסמך משותף, שמאל = עובד */
+.duo-view { flex: 1; min-width: 0; min-height: 0; margin: var(--gap); display: flex; flex-direction: column; gap: var(--gap); }
+.duo-view[hidden] { display: none; }
+/* שורת הלשוניות (T60): לשוניות הרשת, לשוניות הזוגות ו"+", מתחת לסרגל העליון בכל המסכים. רבות מדי: מתכווצות ואז נגללות */
+.duo-tabs { flex: none; display: flex; align-items: center; gap: 6px; margin: var(--gap) var(--gap) 0; min-width: 0; }
+.duo-tabs[hidden] { display: none; }
+.tabs-scroll { flex: 0 1 auto; min-width: 0; display: flex; gap: 6px; overflow-x: auto; padding-block: 2px; scrollbar-width: thin; overscroll-behavior: contain; }
+.tabs-scroll > .duo-tab, .tabs-scroll > .gtab { flex: 0 1 auto; min-width: 104px; }
+.duo-tab-new { flex: none; }
+.duo-tab, .gtab {
+  display: inline-flex; align-items: center; gap: 8px; height: 32px; padding-inline: 12px; max-width: 260px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); color: var(--text-muted); font-weight: 500;
+  transition: background var(--speed) var(--ease), color var(--speed) var(--ease), border-color var(--speed) var(--ease);
+}
+.duo-tab:hover, .gtab:hover { background: var(--surface-3); color: var(--text); }
+.duo-tab[aria-selected="true"], .gtab[aria-selected="true"] { background: var(--accent-dim); border-color: var(--accent-line-soft); color: var(--text); }
+.duo-tab .nm, .gtab .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.duo-tab .pr, .gtab .pr { font-size: 12px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.duo-tab-new { border-style: dashed; }
+
+.duo-cols { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, .9fr) minmax(0, 1fr); gap: var(--gap); }
+.duo-cols[hidden] { display: none; }
+.duo-col { position: relative; min-width: 0; min-height: 0; }
+.duo-slot { position: relative; width: 100%; height: 100%; }
+.duo-hold { position: fixed; left: -10000px; top: 0; width: 900px; height: 700px; visibility: hidden; pointer-events: none; }
+.duo-empty { flex: 1; display: grid; place-items: start center; padding: 14vh var(--space-4) var(--space-4); overflow: auto; }
+.duo-empty[hidden] { display: none; }
+
+/* בטרמינל של זוג אין הגדלה וסגירה: מנהלים אותו מהלוח האמצעי */
+.pane[data-duo] [data-act="expand"], .pane[data-duo] [data-act="close"] { display: none; }
+.pane[data-duo] .pane-head { cursor: default; }
+
+/* נקודות מצב (לשונית, תפריט צד, מקרא): מצב נוכחי אחד בכל נקודה (T46). עובד: צבע ההדגשה עם טבעת פועמת איטית; פנוי: אפור; מושהה: אפור עם סמל השהיה; מחכה לך: כתום; בעיה: אדום */
+.duo-tab .dot, .gtab .dot, .duo-item .dot, .duo-legend .dot { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--text-dim); }
+[data-status="busy"] > .dot { background: var(--accent); animation: dot-ring 2.4s ease-out infinite; }
+[data-status="paused"] > .dot { width: 10px; height: 10px; background: linear-gradient(90deg, transparent 30%, var(--surface-2) 30% 43%, transparent 43% 57%, var(--surface-2) 57% 70%, transparent 70%), var(--text-dim); }
+[data-status="warn"] > .dot { background: var(--warn); }
+[data-status="danger"] > .dot { background: var(--danger); }
+@keyframes dot-ring { 0% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), .6); } 70%, 100% { box-shadow: 0 0 0 6px rgba(var(--accent-rgb), 0); } }
+@media (prefers-reduced-motion: reduce) { [data-status="busy"] > .dot { animation: none; } }
+
+/* גרירת לשוניות (T46): הנגררת מורמת, האחרות מחליקות */
+.duo-tab, .gtab { position: relative; touch-action: none; user-select: none; }
+.duo-tab[data-id], .gtab { transition: background var(--speed) var(--ease), color var(--speed) var(--ease), border-color var(--speed) var(--ease), transform 140ms var(--ease); cursor: default; }
+.duo-tab.lifted, .gtab.lifted { z-index: 3; transition: none; cursor: default; box-shadow: var(--shadow-pop); background: var(--surface-3); color: var(--text); }
+.duo-legend-btn { flex: none; width: 24px; height: 24px; align-self: center; border: 1px solid var(--border-strong); border-radius: var(--radius-round); background: transparent; color: var(--text-muted); font: 600 12px var(--font-ui); cursor: default; }
+.duo-legend-btn:hover { background: var(--surface-3); color: var(--text); }
+.duo-legend-btn[aria-expanded="true"] { background: var(--surface-3); color: var(--text); }
+.duo-tabs { position: relative; }
+.duo-legend { position: absolute; inset-inline-start: 0; top: calc(100% + 6px); z-index: 20; min-width: 300px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: var(--radius); box-shadow: var(--shadow-pop); }
+.lg-row { display: grid; grid-template-columns: 14px auto minmax(0, 1fr); align-items: center; gap: 10px; font-size: 13px; }
+.lg-row b { font-weight: 600; }
+.lg-row span { color: var(--text-muted); font-size: 12px; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* הלוח האמצעי (T34): משטח אחד רגוע בלי מסגרות פנימיות ובלי פסי צבע. היררכיה לפי גודל ומשקל; תפקידים מסומנים באווטאר עגול */
+.duo-board { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 14px; padding: 16px; background: var(--surface); border-radius: var(--radius); overflow: hidden; }
+.db-head { flex: none; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 12px; }
+.db-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.db-name { font-size: 18px; font-weight: 700; line-height: 1.3; }
+.db-path { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 400 12px var(--font-mono); color: var(--text-dim); text-align: end; }
+.db-head.is-paused .db-name::after { content: 'מושהה'; margin-inline-start: 10px; padding: 2px 8px; border-radius: var(--radius-pill); background: var(--warn-dim); color: var(--warn); font-size: 12px; font-weight: 600; vertical-align: 3px; }
+.db-actions { display: flex; align-items: center; gap: 4px; }
+.db-close.armed { background: var(--danger); color: var(--danger-ink); }
+.db-agents { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* אווטאר תפקיד: עיגול קטן עם אייקון, בצבע התפקיד בעוצמה נמוכה */
+.db-av { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: var(--radius-round); background: var(--surface-3); color: var(--text-muted); font-size: 13px; font-weight: 700; }
+.db-av.md { width: 32px; height: 32px; }
+.db-av.r-architect { background: rgba(var(--claude-rgb), var(--role-tint)); color: var(--claude); }
+.db-av.r-worker { background: rgba(var(--shell-rgb), var(--role-tint)); color: var(--shell); }
+.db-av.r-user { background: var(--accent-dim); color: var(--accent); }
+.db-av.r-system { background: var(--surface-3); color: var(--text-muted); }
+
+/* כרטיס סוכן: אווטאר, שם, מצב וכמה זמן במצב הזה */
+.db-agent { position: relative; display: flex; align-items: center; gap: 10px; min-width: 0; padding: 8px 10px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.db-agent-text { display: flex; flex-direction: column; min-width: 0; }
+.db-agent-text b { font-size: 13.5px; font-weight: 600; }
+.db-agent .st { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: var(--text-muted); }
+.db-agent .st .stw { font-weight: 600; color: var(--text); }
+.db-agent .st .sts { font-weight: 400; color: var(--text-dim); font-size: 12px; }
+.db-agent[data-state="working"] .st .stw { color: var(--accent); }
+.db-agent[data-state="attention"] .st .stw { color: var(--warn); }
+.db-agent[data-state="exited"] .st .stw { color: var(--danger); }
+.db-agent[data-state="starting"] .st .stw, .db-agent[data-state="idle"] .st .stw { color: var(--text-muted); }
+.db-agent[data-state="working"] { background: color-mix(in srgb, var(--accent) 11%, var(--surface-2)); }
+.db-av-wrap { position: relative; flex: none; display: inline-flex; }
+.db-dot { position: absolute; inset-inline-end: -2px; bottom: -2px; width: 12px; height: 12px; box-sizing: border-box; border-radius: 50%; background: var(--text-dim); border: 2px solid var(--surface-2); }
+.db-agent[data-state="working"] .db-dot { background: var(--accent); border-color: color-mix(in srgb, var(--accent) 11%, var(--surface-2)); animation: db-ring 1.8s ease-out infinite; }
+.db-agent[data-state="attention"] .db-dot { background: var(--warn); }
+.db-agent[data-state="exited"] .db-dot { background: var(--danger); }
+.db-agent[data-state="starting"] .db-dot { background: transparent; border-color: var(--text-dim); }
+@keyframes db-ring { 0% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), .55); } 100% { box-shadow: 0 0 0 8px rgba(var(--accent-rgb), 0); } }
+.chip-wake { margin-inline-start: auto; display: inline-flex; padding: 5px; border: 0; border-radius: var(--radius-round); background: transparent; color: var(--text-dim); opacity: 0; transition: opacity var(--speed) var(--ease), background var(--speed) var(--ease); }
+.db-agent:hover .chip-wake, .chip-wake:focus-visible { opacity: 1; }
+.chip-wake:hover { background: var(--surface-3); color: var(--text); }
+.chip-wake:active { background: var(--border-strong); }
+.chip-wake[hidden] { display: none; }
+/* סוכן שנסגר: כפתור הפעלה מחדש במקום "העיר" (T51) */
+.chip-restart { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: transparent; color: var(--text); font: inherit; font-size: 12px; font-weight: 600; cursor: default; transition: background var(--speed) var(--ease); }
+.chip-restart[hidden] { display: none; }
+.chip-restart:hover { background: var(--surface-3); }
+.chip-restart:active { background: var(--border-strong); }
+.chip-restart:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.chip-restart:disabled { opacity: .6; cursor: default; }
+/* הכרטיס צר: אצל סוכן שנסגר הכפתור יורד לשורה משלו בכל הרוחב, כדי שהמצב והזמן לא יצטמצמו והתווית לא תישבר */
+.chip-restart { white-space: nowrap; }
+.db-agent[data-state="exited"] { flex-wrap: wrap; }
+.db-agent[data-state="exited"] .chip-restart { flex: 1 0 100%; justify-content: center; margin-inline-start: 0; }
+
+/* התראות: שורה אחת עם האחרונה */
+.db-alerts { flex: none; display: flex; flex-direction: column; gap: 4px; }
+.db-alerts[hidden] { display: none; }
+.db-alert { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 10px; border-radius: var(--radius-sm); background: var(--warn-dim); color: var(--warn); font-size: 13px; line-height: 1.5; }
+.db-alert .ic { flex: none; }
+.db-alert .msg { flex: 1; min-width: 0; line-height: 1.5; }
+.db-alert-act { flex: none; padding: 3px 10px; border: 1px solid rgba(var(--warn-rgb), .55); border-radius: var(--radius-sm); background: transparent; color: inherit; font: inherit; font-size: 12px; font-weight: 600; cursor: default; transition: background var(--speed) var(--ease); }
+.db-alert-act:hover { background: rgba(var(--warn-rgb), .18); }
+.db-alert-act:active { background: rgba(var(--warn-rgb), .28); }
+.db-alert-act:focus-visible { outline: 2px solid var(--warn); outline-offset: 1px; }
+.db-alert-act:disabled { opacity: .6; cursor: default; }
+.db-alert.error { background: var(--danger-dim); color: var(--danger); }
+.db-alert.error .db-alert-act { border-color: rgba(var(--danger-rgb), .55); }
+.db-alert.error .db-alert-act:hover { background: rgba(var(--danger-rgb), .18); }
+.db-alert.error .db-alert-act:focus-visible { outline-color: var(--danger); }
+.db-alert-x { flex: none; display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 26px; padding: 0 6px; border: 0; border-radius: var(--radius-ctl); background: transparent; color: inherit; font: inherit; font-size: 12px; font-weight: 600; cursor: default; }
+.db-alert-x:hover { background: rgba(var(--warn-rgb), .18); }
+.db-alert-x:active { background: rgba(var(--warn-rgb), .28); }
+.db-alert-x:focus-visible { outline: 2px solid var(--warn); outline-offset: 1px; }
+
+/* משימות: כותרת עם "N מתוך M", פס התקדמות דק ושורות עם אייקון מצב */
+.db-progress { flex: none; display: flex; flex-direction: column; gap: 8px; }
+.db-progress[hidden] { display: none; }
+.db-progress-head { display: flex; align-items: baseline; justify-content: space-between; }
+.db-sec h3, .db-progress-head h3 { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .02em; color: var(--text-muted); }
+.db-bar { height: 4px; border-radius: 2px; background: var(--surface-3); overflow: hidden; }
+.db-bar i { display: block; height: 100%; width: 0; border-radius: 2px; background: var(--accent); transition: width .3s var(--ease); }
+.db-progress-text { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.db-tasks-sec { flex: 0 1 auto; max-height: 70%; overflow: auto; margin-top: -6px; } /* the activity feed is read-only now: the task list gets most of the board */
+.db-tasks { display: flex; flex-direction: column; gap: 6px; }
+.tg-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.tg-list[hidden] { display: none; }
+/* כותרת קבוצה: קטנה, נדבקת למעלה בגלילה */
+.tg-h { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 8px; width: 100%; margin: 0; padding: 4px 8px; border: 0; background: var(--surface); color: var(--text-muted); font: 600 12px var(--font-ui); text-align: start; }
+.tg-n { font-weight: 500; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.tg-toggle { cursor: default; }
+.tg-toggle:hover { color: var(--text); }
+.tg-chev { display: inline-flex; transition: transform var(--speed) var(--ease); }
+.tg-done.open .tg-chev { transform: rotate(90deg); }
+.tg-more { margin: 2px 8px 0; padding: 4px 8px; border: 0; background: transparent; color: var(--text-muted); font: 500 12px var(--font-ui); cursor: default; border-radius: var(--radius-sm); }
+.tg-more:hover { background: var(--surface-2); color: var(--text); }
+.db-task { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: var(--radius-md); font-size: 13.5px; line-height: 1.45; transition: background var(--speed) var(--ease); }
+.db-task:hover { background: var(--surface-2); }
+.db-task { flex-wrap: wrap; }
+.db-task.has-detail { cursor: default; }
+.db-task .tdetail { display: none; flex: 1 1 100%; margin: 2px 0 4px; padding: 8px 10px; border-radius: var(--radius-md); background: var(--surface-2); color: var(--text-muted); font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 320px; overflow: auto; user-select: text; }
+.db-task.open .tdetail { display: block; }
+.db-task.open .ttl { display: block; -webkit-line-clamp: unset; }
+.db-task.has-detail:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.db-task .tk { flex: none; position: relative; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--text-dim); color: transparent; box-sizing: border-box; }
+.db-task.s-done .tk { border-color: transparent; background: var(--accent-fill); color: var(--accent-ink); }
+.db-task.s-doing .tk { border: 2px solid var(--border-strong); border-top-color: var(--accent); animation: db-spin 1.8s linear infinite; }
+.db-task.s-blocked .tk { border-color: transparent; background: var(--danger-dim); color: var(--danger); }
+.db-task .tid { flex: none; min-width: 28px; padding: 1px 6px; border-radius: var(--radius-ctl); background: var(--surface-2); font: 500 12px var(--font-mono); color: var(--text-muted); text-align: center; }
+.db-task:hover .tid { background: var(--surface-3); }
+.db-task .ttl { flex: 1; min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.db-task.s-done .ttl { color: var(--text-muted); }
+.db-task.s-blocked .ttl { color: var(--text-muted); }
+@keyframes db-spin { to { transform: rotate(360deg); } }
+.db-none { display: flex; align-items: center; gap: 10px; padding: 14px 12px; border-radius: var(--radius-sm); background: var(--surface-2); font-size: 13px; color: var(--text-muted); list-style: none; }
+.db-none .ic { flex: none; color: var(--text-dim); }
+
+/* שיחה: קבוצות לפי כותב, בועות רכות בלי מסגרות */
+.db-chat-sec { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.db-chat { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 16px; padding-inline-end: 4px; }
+.db-group { display: flex; align-items: flex-start; gap: 10px; }
+.db-group-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.db-group-head { display: flex; align-items: baseline; gap: 8px; font-size: 12.5px; }
+.db-group-head b { font-weight: 600; color: var(--text); }
+.db-group-head time { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.db-bubbles { display: flex; flex-direction: column; gap: 4px; }
+.db-bubble { max-width: 100%; padding: 9px 12px; border-radius: 4px var(--radius-bubble) var(--radius-bubble) var(--radius-bubble); background: var(--surface-2); font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+.db-bubble code, .db-bubble kbd { font: 400 13px var(--font-mono); }
+.db-group.r-user .db-bubble { background: var(--accent-dim); }
+.db-sys { align-self: center; max-width: 90%; padding: 2px 12px; font-size: 12px; line-height: 1.6; color: var(--text-dim); text-align: center; }
+.db-day { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-dim); }
+.db-day::before, .db-day::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.db-activity { flex: none; font-size: 12px; color: var(--text-muted); }
+.db-activity summary { cursor: default; padding: 2px 0; }
+.db-events { list-style: none; margin: 4px 0 0; padding: 0; max-height: 120px; overflow: auto; display: flex; flex-direction: column; gap: 2px; }
+.db-events li { display: flex; gap: 8px; }
+.db-events time { flex: none; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.db-events b { flex: none; font-weight: 600; color: var(--text); }
+.db-events span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.db-compose { flex: none; display: flex; align-items: flex-end; gap: 8px; }
+.db-compose textarea {
+  flex: 1; min-height: 44px; max-height: 140px; padding: 10px 12px; resize: none;
+  background: var(--surface-2); border: 1px solid transparent; border-radius: var(--radius-sm); font: inherit; font-size: 14px; line-height: 1.5; color: inherit;
+}
+.db-compose textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-halo); }
+.db-send { flex: none; width: 44px; height: 44px; padding: 0; }
+
+/* תפריט הצד: רשימת הזוגות */
+.side-duos { flex: none; padding: 2px 12px 6px; }
+.side-sec-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 0 6px; font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.side-mini { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border: 0; border-radius: var(--radius-ctl); background: transparent; color: var(--text-muted); }
+.side-mini:hover { background: var(--accent-dim); color: var(--accent); }
+.duo-list { display: flex; flex-direction: column; gap: 2px; }
+.duo-item { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 8px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text); text-align: start; }
+.duo-item:hover { background: var(--surface-2); }
+.duo-item.current { background: var(--accent-dim); }
+.duo-item .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 500; }
+.duo-item .pr { flex: none; font-size: 12px; color: var(--text-dim); }
+.duo-none { padding: 4px 8px; font-size: 12.5px; color: var(--text-dim); }
+.duo-closed-head { margin-top: 8px; padding: 2px 8px; font-size: 11.5px; color: var(--text-dim); }
+.duo-closed { display: flex; align-items: center; gap: 8px; padding: 4px 8px; }
+.duo-closed .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; color: var(--text-muted); }
+.duo-closed .pr { flex: none; font-size: 11.5px; color: var(--text-dim); }
+.duo-restore { flex: none; padding: 2px 9px; font-size: 12px; }
+
+/* חלון יצירת זוג */
+.duo-dlg { width: min(540px, calc(100vw - 32px)); }
+.duo-dlg .field span { display: block; margin-bottom: 6px; font-size: 12.5px; font-weight: 500; color: var(--text-muted); }
+.duo-dlg textarea, .duo-dlg select {
+  width: 100%; padding: 9px 11px; background: var(--bg); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font: inherit; font-size: 13.5px; color: inherit;
+}
+.duo-dlg textarea { resize: vertical; }
+.duo-dlg textarea:focus, .duo-dlg select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-halo); }
+.duo-dlg select option { background: var(--surface-2); }
+.duo-dlg .field { margin-top: var(--space-3); }
+.field-hint { display: block; margin-top: 6px; font-size: 12px; line-height: 1.5; color: var(--text-dim); }
+.duo-folder { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--bg); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
+.duo-folder-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.duo-folder-info > bdi { display: block; } /* bdi הוא inline: בלי זה השם והנתיב נדבקו (shop-appC:\work\shop-app) */
+.duo-folder-name { font-weight: 600; font-size: 13.5px; }
+.duo-folder-path { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 400 12px var(--font-mono); color: var(--text-dim); text-align: end; }
+.duo-dlg .dlg-actions { margin-top: var(--space-4); }
+
+/* לשונית רשת (T60): כפתור סגירה קטן שמופיע במעבר עכבר או במיקוד, ויעד השלכה לטרמינל שנגרר אליה */
+.gtab { cursor: default; font: inherit; font-weight: 500; }
+.gtab .x { position: absolute; inset-inline-end: 4px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; padding: 0; border: 0; border-radius: var(--radius-round); background: var(--surface-3); color: var(--text-dim); font: 400 16px/1 var(--font-ui); cursor: default; opacity: 0; transition: opacity var(--speed) var(--ease), background var(--speed) var(--ease), color var(--speed) var(--ease); }
+.gtab:hover .x, .gtab:focus-within .x, .gtab[aria-selected="true"] .x { opacity: 1; }
+.gtab .x:hover { background: var(--surface-3); color: var(--danger); }
+.gtab .x:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: 1px; }
+.gtab:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.gtab.drop-target { background: var(--accent-dim); border-color: var(--accent); color: var(--text); }
+
+/* לשוניות בסגנון Chrome (T69): פינות עליונות מעוגלות, הלשונית הפעילה מחוברת לתוכן שמתחתיה, "+" שטוח, אייקון זוג בלשונית זוג */
+.duo-tabs { align-items: flex-end; gap: 2px; margin: 0; padding: 6px var(--gap) 0; border-bottom: 1px solid var(--border); background: var(--surface); }
+.tabs-scroll { gap: 2px; padding-block: 0; scrollbar-width: none; } /* בלי פס גלילה (הוא היה מנפח את השורה): הגלגלת והחיצים גוללים, והלשונית הפעילה תמיד בטווח הראייה */
+.tabs-scroll::-webkit-scrollbar { display: none; }
+.duo-tab, .gtab { height: 32px; margin-bottom: -1px; border: 1px solid transparent; border-bottom: 0; border-radius: var(--radius-tab) var(--radius-tab) 0 0; background: transparent; }
+.duo-tab:hover, .gtab:hover { background: var(--surface-2); border-color: transparent; }
+.duo-tab[aria-selected="true"], .gtab[aria-selected="true"] { background: var(--bg); border-color: var(--border); color: var(--text); box-shadow: 0 1px 0 var(--bg); }
+.duo-tab.lifted, .gtab.lifted { background: var(--surface-3); }
+.duo-tab-new { align-self: center; width: 28px; min-width: 28px; height: 28px; margin: 0 4px; padding: 0; justify-content: center; border: 0; border-radius: var(--radius-round); background: transparent; color: var(--text-muted); font-size: 18px; line-height: 1; }
+.duo-tab-new:hover { background: var(--surface-3); color: var(--text); }
+.duo-tab-new:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.duo-legend-btn { align-self: center; }
+.tab-ic { flex: none; display: inline-flex; color: var(--text-dim); }
+.duo-tab[aria-selected="true"] .tab-ic { color: var(--accent); }
+
+/* X בכל לשונית (T72): גם בלשונית זוג. מופיע בריחוף, במיקוד ובלשונית הנבחרת; בזוג, הלחיצה הראשונה הופכת אותו ל"לסגור?" */
+.duo-tab .x { position: absolute; inset-inline-end: 4px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: var(--radius-round); background: var(--surface-3); color: var(--text-dim); font: 400 16px/1 var(--font-ui); cursor: default; opacity: 0; transition: opacity var(--speed) var(--ease), background var(--speed) var(--ease), color var(--speed) var(--ease); }
+.duo-tab:hover .x, .duo-tab:focus-within .x, .duo-tab[aria-selected="true"] .x, .duo-tab .x.armed { opacity: 1; }
+.duo-tab .x:hover { background: var(--surface-3); color: var(--danger); }
+.duo-tab .x:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: 1px; }
+.duo-tab .x.armed, .gtab .x.armed { width: auto; padding-inline: 8px; border-radius: var(--radius-chip); background: var(--danger); color: var(--danger-ink); font: 600 12px var(--font-ui); }
+@media (hover: none) { .duo-tab .x, .gtab .x { opacity: 1; } }
+
+/* לשוניות גדולות יותר (T71): גובה 44, שם 15px, ספירה 13px, X עם שטח לחיצה של 28, "+" 32, "?" 28, רוחב 120-240 */
+.duo-tabs { padding-top: 2px; }
+.duo-tab, .gtab { height: 44px; padding-inline: 16px 32px; gap: 10px; font-size: 15px; max-width: 240px; }
+.duo-tab .pr, .gtab .pr { font-size: 13px; }
+.tabs-scroll > .duo-tab, .tabs-scroll > .gtab { min-width: 120px; }
+.gtab .x { width: 20px; height: 20px; }
+.gtab .x::after { content: ''; position: absolute; inset: -4px; } /* שטח לחיצה של 28px סביב ה-X של 20px */
+.duo-tab-new { width: 32px; min-width: 32px; height: 32px; font-size: 20px; }
+.duo-legend-btn { width: 28px; height: 28px; font-size: 13px; }
+.db-bubble.is-blocked { background: var(--danger-dim); } /* משימה חסומה בפעילות (T78) */
+/* Chrome-style tab close: always visible at the end of the tab, small round, grey circle on hover (no red), name keeps clear of it */
+.duo-tab[data-id], .gtab { padding-inline-end: 30px; }
+.duo-tab .x, .gtab .x { opacity: 1; width: 18px; height: 18px; inset-inline-end: 6px; background: transparent; color: var(--text-muted); font: 400 15px/1 var(--font-ui); }
+.duo-tab .x:hover, .gtab .x:hover { background: var(--surface-3); color: var(--text); }
+.duo-tab[aria-selected="true"] .x:hover, .gtab[aria-selected="true"] .x:hover { background: var(--accent-dim); }
+.duo-tab .x.armed, .gtab .x.armed { width: auto; height: 20px; padding-inline: 8px; background: var(--danger); color: var(--danger-ink); }
+
+/* the recent-events and technical-details logs are kept in the server but not shown on the board (nobody needs them day to day) */
+.db-activity, .db-tech { display: none !important; }
+
+/* no chat area on the board: you talk to the architect directly in his terminal; the task list takes the whole board */
+.db-chat-sec, .db-compose { display: none !important; }
+.db-tasks-sec { flex: 1 1 auto; max-height: none; }
+
+/* first box: the task list (as many tasks as fit, scrolls when expanded); second small box: the finished tasks */
+.db-tasks-sec { flex: 1 1 0; min-height: 0; max-height: none; overflow: auto; }
+.db-done-sec { flex: none; max-height: 24%; overflow: auto; margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--border); }
+.db-done-sec[hidden] { display: none; }
+.db-task[hidden], .tg-more[hidden] { display: none !important; }
+
+/* one task list in order with a filter on top (finished / all / not finished) */
+.db-tasks-sec { overflow: auto; }
+.tf-cap { font-size: 11.5px; color: var(--text-dim); margin: 0 2px 4px; }
+.tf-bar { position: sticky; top: 0; z-index: 3; display: flex; padding: 2px; margin-bottom: 8px; border: 1px solid var(--border); border-radius: var(--radius-ctl, 4px); background: var(--surface); }
+.tf-opt { flex: 1 1 0; min-width: 0; padding: 5px 8px; border: 0; border-radius: var(--radius-ctl, 3px); background: transparent; color: var(--text-muted); font: 500 13px var(--font-ui); cursor: default; }
+.tf-opt:hover { background: var(--surface-2); color: var(--text); }
+.tf-opt.on { background: var(--accent-dim); color: var(--text); }
+.tf-opt:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.tg-flat { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+
+/* the "+" button is an exact circle: the generic tab padding must not apply to it */
+.duo-tab-new { box-sizing: border-box; width: 28px; min-width: 28px; max-width: 28px; height: 28px; padding: 0; border-radius: 50%; font-size: 18px; }
+
+.db-cost { padding: 3px 10px; border: 1px solid transparent; border-radius: var(--radius-ctl, 4px); background: transparent; color: var(--text-dim); font: 500 12.5px var(--font-ui); cursor: default; }
+.db-cost:hover, .db-cost[aria-expanded="true"] { background: var(--surface-2); color: var(--text-muted); border-color: var(--border); }
+.db-cost:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.db-cost[hidden] { display: none; }
+.db-usage { flex: none; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-2); font-size: 12.5px; color: var(--text-muted); display: flex; flex-direction: column; gap: 3px; }
+.db-usage[hidden] { display: none; }
+.du-model { display: flex; justify-content: space-between; gap: 12px; color: var(--text); font-weight: 600; margin-top: 2px; }
+.du-row { display: flex; justify-content: space-between; gap: 12px; font-variant-numeric: tabular-nums; }
+.du-total { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); color: var(--text); font-weight: 600; }
+.du-note { margin: 6px 0 0; font-size: 11.5px; color: var(--text-dim); line-height: 1.5; }
+.db-agents { grid-column: 1 / -1; }

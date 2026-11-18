@@ -1,0 +1,57 @@
+/* ---------- מבנה לפי סגנון (T49) ----------
+   הצבעים, הפינות והצללים מגיעים מ-tokens.css (אין כאן אף צבע קבוע). כאן רק מה שמשתנה במבנה בין הסגנונות, לפי `data-style` על :root.
+   "ide" הוא ברירת המחדל (הכללים הבסיסיים בשאר הקבצים; המבנה של IDE נוסף כאן ב-T39), "classic" הוא המראה הישן, ו"paper" מוגדר מכאן. */
+
+/* ---------- נייר: כרטיסי טרמינל כהים שצפים על קנבס בהיר ----------
+   בלי קווי מסגרת ובלי זוהר בצבע: הכרטיס מובחן בצל רך, והפאן הממוקד בצל חזק יותר ובטקסט כותרת כהה יותר */
+:root[data-style="paper"] .pane { border-color: transparent; background-clip: padding-box; box-shadow: var(--shadow-card); }
+/* בתוך הכרטיס הכהה הגלילה כהה (לא הסרגל הבהיר של color-scheme: light) */
+:root[data-style="paper"] .pane-body { color-scheme: dark; --scroll-thumb: var(--term-scroll-thumb); --scroll-thumb-hover: var(--term-scroll-thumb-hover); }
+:root[data-style="paper"] .pane.focused { border-color: transparent; box-shadow: var(--shadow-card-focus); }
+:root[data-style="paper"] .pane.s-wait.k-attn,
+:root[data-style="paper"] .pane.s-wait.focused.k-attn { border-color: transparent; box-shadow: var(--shadow-card), 0 0 0 2px rgba(var(--warn-rgb), .8); }
+:root[data-style="paper"] .pane.s-wait.focused.k-done { border-color: transparent; }
+:root[data-style="paper"] .pane.drop-target { border-color: transparent; box-shadow: var(--shadow-card-focus), 0 0 0 2px var(--accent); }
+:root[data-style="paper"] .pane .name { color: var(--text-muted); }
+:root[data-style="paper"] .pane.focused .name { color: var(--text); }
+:root[data-style="paper"] .pane.tile:hover { border-color: transparent; box-shadow: var(--shadow-card-focus); }
+:root[data-style="paper"] .pane.tile.s-wait.k-attn:hover { border-color: transparent; }
+/* תצוגת יישור העברית בהגדרות: הכרטיס הכבוי בנייר הוא כרטיס בהיר (דהייה של כרטיס כהה על לבן נותנת אפור עם ניגודיות נמוכה) */
+:root[data-style="paper"] .rp-card:not(.on) { opacity: 1; background: var(--surface-3); color: var(--text-muted); }
+:root[data-style="paper"] .rp-card:not(.on) .rp-cap { color: var(--text-muted); }
+
+/* ---------- IDE: מבנה של סביבת פיתוח (T39) ---------- */
+/* שורת מצב בתחתית: הסיכום (טרמינלים · פעילים · ממתינים לך) מהסרגל העליון, ובצד השני החיבור, הפורט והגרסה. מוסתרת בחלון נמוך מ-560px */
+.statusbar { display: none; }
+:root[data-style="ide"] .statusbar:not([hidden]) { display: flex; flex: none; align-items: center; gap: var(--space-4); height: 24px; padding-inline: var(--space-3); background: var(--surface); border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12px; }
+:root[data-style="ide"] .sb-start { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; overflow: hidden; }
+:root[data-style="ide"] .statusbar .summary { flex: 1 1 auto; justify-content: flex-start; gap: var(--space-3); font-size: 12px; overflow: hidden; }
+:root[data-style="ide"] .statusbar .stat-wait { padding: 1px 6px; }
+:root[data-style="ide"] .sb-end { flex: none; display: flex; align-items: center; gap: var(--space-3); }
+:root[data-style="ide"] .sb-item[hidden] { display: none; }
+:root[data-style="ide"] .sb-conn { display: inline-flex; align-items: center; gap: 6px; }
+:root[data-style="ide"] .sb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-dim); }
+:root[data-style="ide"] .sb-conn[data-state="on"] .sb-dot { background: var(--accent); }
+:root[data-style="ide"] .sb-conn[data-state="off"] { color: var(--warn); }
+:root[data-style="ide"] .sb-conn[data-state="off"] .sb-dot { background: var(--warn); }
+@media (max-height: 560px) { :root[data-style="ide"] .statusbar:not([hidden]) { display: none; } }
+/* בלי הסיכום באמצע הסרגל העליון, הכלים נשארים בקצה */
+:root[data-style="ide"] .topbar .tools { margin-inline-start: auto; }
+/* כותרות פאן כלשוניות עורך: הפאן הממוקד מובחן בכותרת בהירה יותר (surface-3) ובטקסט בהיר יותר, לא בקו או בזוהר צבעוני; הכפתורים שקטים עד ריחוף או מיקוד */
+:root[data-style="ide"] .pane.focused { border-color: var(--accent); box-shadow: none; }
+:root[data-style="ide"] .pane.focused .pane-head { background: var(--surface-3); }
+:root[data-style="ide"] .pane .name, :root[data-style="ide"] .pane .ptitle { color: var(--text-muted); }
+:root[data-style="ide"] .pane.focused .name { color: var(--text); }
+:root[data-style="ide"] .pane.focused .ptitle { color: var(--text); }
+:root[data-style="ide"] .pane-head .ph-btn { opacity: .55; }
+:root[data-style="ide"] .pane-head:hover .ph-btn, :root[data-style="ide"] .pane.focused .ph-btn, :root[data-style="ide"] .pane-head .ph-btn:focus-visible { opacity: 1; }
+/* תפריט הצד כעץ סייר הקבצים: שטוח ומחובר לקצה (בלי כרטיס מעוגל), שורות של 24px, כותרת קטנה ומעומעמת, ריחוף שטוח ב-surface-3 */
+:root[data-style="ide"] #side { margin: 0; border: 0; border-inline-end: 1px solid var(--border); border-radius: 0; }
+:root[data-style="ide"] .side-head { padding: 8px 12px 4px; }
+:root[data-style="ide"] .side-title { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+:root[data-style="ide"] .grp-head { padding-block: 2px; min-height: 24px; }
+:root[data-style="ide"] .ses { padding-block: 2px; min-height: 24px; }
+:root[data-style="ide"] .grp-row:hover, :root[data-style="ide"] .ses:hover { background: var(--surface-3); }
+:root[data-style="ide"] .grp-path { margin-block: 0 2px; }
+/* סרגל עליון שטוח ונמוך יותר (44px) */
+:root[data-style="ide"] { --topbar-h: 44px; }

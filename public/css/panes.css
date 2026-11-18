@@ -1,0 +1,149 @@
+/* ---------- Panes ---------- */
+.pane {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: var(--term-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color var(--speed) var(--ease), box-shadow var(--speed) var(--ease);
+}
+.pane.focused {
+  border-color: var(--accent-line);
+  box-shadow: 0 0 0 1px var(--accent-ring);
+}
+/* צריך אישור: כתום, הכי בולט. סיים וממתין לך: טורקיז רגוע. הטבעת של הפאן הממוקד נשארת טורקיז כרגיל, אבל אישור חסום תמיד נראה */
+.pane.s-wait.k-attn { border-color: rgba(var(--warn-rgb), .7); }
+.pane.s-wait.focused.k-done { border-color: var(--accent-line); }
+.pane.s-wait.focused.k-attn { border-color: rgba(var(--warn-rgb), .85); }
+
+.pane-head {
+  flex: none;
+  height: 36px;
+  display: flex; align-items: center; gap: 8px;
+  padding-inline: 12px 8px;
+  background: var(--pane-head-bg);
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+  min-width: 0;
+}
+.pane.tile .pane-head { height: 26px; padding-inline: 8px 6px; gap: 6px; }
+.pane-head[draggable="true"] { cursor: default; }
+.pane-head[draggable="true"]:active { cursor: default; }
+.pane.dragging { opacity: .45; }
+.pane.drop-target {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 2px var(--accent), 0 0 28px var(--accent-glow);
+}
+
+.dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--text-dim); transition: background var(--speed) var(--ease); }
+.s-busy .dot { background: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
+.s-wait.k-attn .dot { background: var(--warn); }
+.s-wait.k-done .dot { background: var(--text-muted); }
+.s-exit .dot { background: var(--danger); }
+
+.kind { flex: none; display: inline-flex; }
+.kind.claude { color: var(--claude); }
+.kind.powershell { color: var(--shell); }
+
+.name { flex: none; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; font-size: 13px; padding: 1px 4px; margin-inline-start: -4px; border-radius: 4px; }
+.name[contenteditable] { outline: 1px solid var(--accent); background: var(--surface-3); text-overflow: clip; cursor: text; }
+.ptitle { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-muted); font-size: 12px; text-align: start; }
+.pane.tile .ptitle { display: none; }
+.pane.tile .name { flex: 1; max-width: none; font-size: 12px; }
+
+/* מצב אחד ברור בכותרת (status.js): תווית בצבע המצב; הכי בולט "צריך אישור" */
+.pstatus { flex: none; display: inline-flex; align-items: center; gap: 4px; height: 20px; padding-inline: 8px; border-radius: var(--radius-chip); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.pstatus[hidden] { display: none; }
+.pstatus.k-busy { padding-inline: 2px; color: var(--accent); font-weight: 500; }
+.pstatus.k-attn { background: var(--warn); color: var(--warn-ink); }
+.pstatus.k-done { background: var(--chip-bg); color: var(--text-muted); }
+.pstatus.k-done .ic { color: var(--accent); }
+.pstatus.k-exit { background: var(--danger-dim); color: var(--danger); }
+.pstatus.k-pend { background: var(--chip-bg); color: var(--text-muted); }
+
+.ph-btn {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  height: 28px; min-width: 28px; padding: 0 6px; gap: 4px;
+  border: 0; border-radius: var(--radius-ctl); background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 500;
+  transition: background var(--speed) var(--ease), color var(--speed) var(--ease);
+}
+.ph-btn:hover { background: var(--surface-3); color: var(--text); }
+.ph-btn.close:hover { background: var(--danger-dim); color: var(--danger); }
+.pane.tile .ph-btn[data-act="expand"] { display: none; }
+
+.pane-body { position: relative; flex: 1; min-height: 0; overflow: hidden; direction: ltr; background: var(--term-bg); }
+.term-host { position: absolute; top: 0; left: 0; background: var(--term-bg); }
+.term-host .xterm { padding: 6px 4px 4px 8px; height: 100%; }
+.term-host .xterm-viewport { background-color: transparent !important; }
+
+.shield { position: absolute; inset: 0; display: none; cursor: default; }
+.pane.tile .shield { display: block; }
+.pane.tile:hover { border-color: var(--border-strong); }
+.pane.tile.s-wait.k-attn:hover { border-color: var(--warn); }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+/* צ'יפ קישור בריחוף (T47) */
+.link-chip {
+  direction: rtl; position: absolute; inset-inline-start: 12px; bottom: 12px; z-index: 7; max-width: calc(100% - 24px); display: flex; align-items: baseline; gap: 6px; padding: 5px 12px;
+  border-radius: var(--radius-pill); background: var(--surface-3); border: 1px solid var(--border-strong); color: var(--text); font-size: 12px; box-shadow: var(--shadow-pop); pointer-events: none;
+}
+.lc-hint { flex: none; color: var(--text-muted); white-space: nowrap; }
+.lc-uri { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-mono); }
+
+/* הדבקת תמונה וטקסט ארוך (T45, T53): צ'יפ בשורת הכותרת של הפאן (לא מעל טקסט הטרמינל): "מצרף…" / "שומר…" ואחרי שמירת טקסט גם פעולות. וכיתוב הגרירה */
+.paste-chip {
+  direction: rtl; flex: 0 1 auto; min-width: 0; display: inline-flex; align-items: center; gap: 6px; height: 24px; padding-inline: 10px 6px;
+  border-radius: var(--radius-chip); background: var(--surface-3); border: 1px solid var(--border-strong); color: var(--text); font-size: 12px; white-space: nowrap;
+}
+.paste-chip .pc-text { min-width: 36px; overflow: hidden; text-overflow: ellipsis; }
+.pane-head:has(.paste-chip) .ptitle { flex: 0 1 0; min-width: 0; overflow: hidden; } /* בזמן שהצ'יפ מוצג הוא מקבל את המקום של כותרת התהליך */
+.paste-chip .pc-ok { color: var(--accent); font-weight: 700; }
+.pc-act { flex: none; height: 20px; padding: 0 6px; border: 0; border-radius: var(--radius-chip); background: transparent; color: var(--accent); font: 600 12px var(--font-ui); cursor: default; transition: background var(--speed) var(--ease), color var(--speed) var(--ease); }
+.pc-act:hover { background: var(--accent-dim); }
+.pc-act:active { background: var(--accent-line-soft); }
+.pc-act:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.pc-act:disabled, .pc-act[hidden] { display: none; }
+.drop-hint {
+  direction: rtl; position: absolute; inset: 6px; z-index: 7; display: grid; place-items: center; border: 2px dashed var(--accent-line); border-radius: var(--radius);
+  background: var(--veil); color: var(--term-text); font-size: 14px; font-weight: 600; pointer-events: none;
+}
+
+/* סגירה שנשלחה ועוד לא אושרה: הפאן מתעמעם ולא מגיב (T38) */
+.pane.closing { opacity: .5; pointer-events: none; transition: opacity var(--speed) var(--ease); }
+
+/* כרטיס "פותח את..." (pending.js): תא בגריד עד שהטרמינל האמיתי מגיע */
+.pending-card {
+  position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 12px;
+  background: var(--term-bg); border: 1px solid var(--border); border-radius: var(--radius); color: var(--term-text-muted); font-size: 13px; text-align: center;
+  animation: pc-in var(--speed) var(--ease);
+}
+.pending-card.tile { flex-direction: row; gap: 8px; font-size: 12px; }
+.spin.lg { width: 22px; height: 22px; }
+.pending-card.tile .spin.lg { width: 14px; height: 14px; }
+@keyframes pc-in { from { opacity: 0; transform: scale(.98); } to { opacity: 1; transform: none; } }
+
+/* ---------- שכבת "התהליך הסתיים" ---------- */
+/* שלב ההפעלה של Claude (T41): שכבה אטומה בצבע הטרמינל מעל כל מה שמתרחש מתחתיה; יורדת בדהייה של 150ms */
+.pane-startup {
+  direction: rtl; position: absolute; inset: 0; z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  background: var(--term-bg); color: var(--term-text-muted); transition: opacity 150ms var(--ease);
+}
+.pane-startup[hidden] { display: none; }
+.pane-startup.lifting { opacity: 0; pointer-events: none; }
+.ps-title { font-size: 14px; font-weight: 600; color: var(--term-text); }
+.ps-dir { max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--term-text-dim); }
+.pane.tile .pane-startup { display: none; }
+.pane-exit { position: absolute; inset: 0; display: grid; place-items: center; background: var(--veil); }
+.pane-exit[hidden] { display: none; }
+.pe-box { display: grid; gap: 6px; justify-items: center; padding: 18px 22px; border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--surface-2); text-align: center; }
+.pe-title { font-weight: 700; font-size: 14px; }
+.pe-code { font: 500 12px var(--font-mono); color: var(--text-muted); }
+.pe-actions { display: flex; gap: var(--space-2); margin-top: 8px; }
+.pe-actions [hidden] { display: none; }
+/* אריח קטן: בלי שכבה ובלי "⋯" (המצב "הסתיים" כבר מופיע בתווית; לחיצה על האריח מגדילה אותו ואז רואים את השכבה) */
+.pane.tile .pane-exit, .pane.tile .ph-btn[data-act="menu"] { display: none; }
+
+/* טרמינל בלשונית רשת שאינה פעילה (T60): לא מוצג ולא מצייר, ממשיך לרוץ */
+.pane.tab-parked { display: none !important; }
