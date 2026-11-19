@@ -19,6 +19,13 @@ Works on Windows, macOS and Linux. Developed and tested on Windows; the macOS/Li
 - Claude Code installed and on your `PATH` (`claude`), optional if you only want plain shells
 - Chrome, Edge or Brave for the app-style window (otherwise your default browser is used)
 
+## Install (Windows, one click)
+
+1. Download the repo (**Code → Download ZIP**) and extract it, or `git clone` it.
+2. Double-click **`Install Terminal Grid.bat`**.
+
+It installs Node.js (via winget) and Claude Code if missing, copies the app to `%LOCALAPPDATA%\Terminal Grid`, installs dependencies, adds a **Terminal Grid** desktop and Start-menu shortcut, and adds **Terminal Grid** to the Explorer right-click menu (right-click any folder or empty space to open a terminal there). No admin rights needed. Run it again to update (your terminals and settings are kept). **`Uninstall Terminal Grid.bat`** removes it.
+
 ## Run
 
 ```bash
